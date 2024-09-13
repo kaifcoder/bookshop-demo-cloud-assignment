@@ -24,6 +24,11 @@ public class BookController {
         model.addAttribute("books", bookService.getAllBooks());
         return "books";
     }
+
+    @GetMapping("/hello")
+    public String hello() {
+        return "hello";
+    }
     
     // Show form to add a new book
     @GetMapping("/add")
