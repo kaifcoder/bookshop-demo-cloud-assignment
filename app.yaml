@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookshop
+spec:
+  selector:
+    matchLabels:
+      app: bookshop
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: bookshop
+    spec:
+      containers:
+        - name: app
+          image: cc-ms-k8s-training.common.repositories.cloud.sap/bookshop-i528926:v1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://bookshop-db:5432/bookdb
+            - name: SPRING_DATASOURCE_USERNAME
+              value: postgres
+            - name: SPRING_JPA_DATABASE-PLATFORM_HIBERNATE_DIALECT
+              value: PostgreSQLDialect
+      imagePullSecrets:
+        - name: regcred
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookshop
+spec:
+    selector:
+        app: bookshop
+    ports:
+        - name: http
+          port: 8080
+          targetPort: 8080
+    type: ClusterIP
+
+---
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: istio
+spec:
+  controller: istio.io/ingress-controller
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bookshop
+spec:
+  ingressClassName: istio
+  rules:
+    - host: bookshop.api.dcea261.kyma.ondemand.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: bookshop
+                port:
+                  number: 8080
+            path: /
+            pathType: Prefix
+  tls:
+    - hosts:
+        - bookshop.api.dcea261.kyma.ondemand.com
+      secretName: kyma-gateway-certs
+

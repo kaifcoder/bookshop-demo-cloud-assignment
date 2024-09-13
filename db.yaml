@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookshop-db
+spec:
+  selector:
+    matchLabels:
+      app: bookshop-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: bookshop-db
+    spec:
+      containers:
+        - name: app
+          image: postgres:14-alpine
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_HOST_AUTH_METHOD
+              value: trust
+            - name: POSTGRES_DB
+              value: bookdb
+      imagePullSecrets:
+        - name: regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookshop-db
+spec:
+  selector:
+    app: bookshop-db
+  ports:
+    - name: db
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP

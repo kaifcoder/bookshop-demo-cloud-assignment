@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.service.CartService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,24 +13,26 @@ import com.example.demo.service.BookService;
 import org.springframework.validation.BindingResult;
 
 @Controller
-@RequestMapping("/books")
+@RequestMapping("/")
 public class BookController {
     
     @Autowired
     private BookService bookService;
+
+    @Autowired
+    private CartService cartService;
     
     // List all books
     @GetMapping
     public String listBooks(Model model) {
         model.addAttribute("books", bookService.getAllBooks());
+        model.addAttribute("cartSize", cartService.getCartItems().size());
+        model.addAttribute("cartItems", cartService.getCartItems());
         return "books";
     }
 
-    @GetMapping("/hello")
-    public String hello() {
-        return "hello";
-    }
-    
+
+
     // Show form to add a new book
     @GetMapping("/add")
     public String showAddForm(Book book) {
@@ -43,7 +46,7 @@ public class BookController {
             return "add-book";
         }
         bookService.saveBook(book);
-        return "redirect:/books";
+        return "redirect:/";
     }
     
     // Show form to edit a book
@@ -66,7 +69,7 @@ public class BookController {
         }
         
         bookService.saveBook(book);
-        return "redirect:/books";
+        return "redirect:/";
     }
     
     // Delete a book
@@ -75,6 +78,6 @@ public class BookController {
         Book book = bookService.getBookById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid book Id:" + id));
         bookService.deleteBook(book.getId());
-        return "redirect:/books";
+        return "redirect:/";
     }
 }
