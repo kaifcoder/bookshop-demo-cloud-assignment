@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: cc-ms-k8s-training.common.repositories.cloud.sap/bookshop-i528926:v1
+          image: cc-ms-k8s-training.common.repositories.cloud.sap/bookshop-i528926:v2
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -58,7 +58,7 @@ metadata:
 spec:
   ingressClassName: istio
   rules:
-    - host: bookshop.api.dcea261.kyma.ondemand.com
+    - host: bookshop.aa18013.kyma.ondemand.com
       http:
         paths:
           - backend:
@@ -70,6 +70,6 @@ spec:
             pathType: Prefix
   tls:
     - hosts:
-        - bookshop.api.dcea261.kyma.ondemand.com
+        - bookshop.aa18013.kyma.ondemand.com
       secretName: kyma-gateway-certs
 
