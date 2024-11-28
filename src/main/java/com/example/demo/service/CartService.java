@@ -21,4 +21,13 @@ public class CartService {
     public void clearCart() {
         cart.clear();
     }
+
+    public String getTotalPrice() {
+        double totalPrice = cart.stream().mapToDouble(Book::getPrice).sum();
+        return String.format("%.2f", totalPrice);
+    }
+
+    public void removeBookFromCart(Book book) {
+        cart.remove(book);
+    }
 }

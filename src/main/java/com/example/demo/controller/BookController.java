@@ -12,6 +12,9 @@ import com.example.demo.service.BookService;
 
 import org.springframework.validation.BindingResult;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Controller
 @RequestMapping("/")
 public class BookController {
@@ -28,6 +31,7 @@ public class BookController {
         model.addAttribute("books", bookService.getAllBooks());
         model.addAttribute("cartSize", cartService.getCartItems().size());
         model.addAttribute("cartItems", cartService.getCartItems());
+        model.addAttribute("totalPrice", cartService.getTotalPrice());
         return "books";
     }
 
@@ -38,6 +42,7 @@ public class BookController {
     public String showAddForm(Book book) {
         return "add-book";
     }
+
     
     // Handle add book
     @PostMapping("/add")
@@ -80,4 +85,52 @@ public class BookController {
         bookService.deleteBook(book.getId());
         return "redirect:/";
     }
+
+    @GetMapping("/checkout")
+    public String checkout(Model model) {
+        // Get cart details
+        List<Book> items = cartService.getCartItems();
+        String total = cartService.getTotalPrice();
+
+        // Add data to the model for checkout page
+        model.addAttribute("items", items);
+        model.addAttribute("total", total);
+
+        // Return checkout view
+        return "checkout";
+    }
+
+    @GetMapping("/confirmCheckout")
+    public String confirm() {
+        return "confirm";
+    }
+
+    @PostMapping("/confirm")
+    public String confirmOrder(@RequestParam String customerName, @RequestParam String customerPhone, Model model) {
+        // Save customer details and cart info (mock implementation or service layer)
+        OrderReceipt receipt = generateReceipt(customerName, customerPhone);
+        model.addAttribute("receipt", receipt);
+        return "receipt"; // Render receipt page
+    }
+    public OrderReceipt generateReceipt(String name, String phone) {
+        OrderReceipt receipt = new OrderReceipt();
+//        get date and time in format dd mm yyyy hh mm am/pm
+
+       String date = LocalDateTime.now().toString();
+        receipt.setCustomerName(name);
+        receipt.setCustomerPhone(phone);
+        receipt.setItems(cartService.getCartItems());
+        receipt.setTotalPrice(cartService.getTotalPrice());
+        receipt.setOrderDateTime(
+                date.substring(8, 10) + " " + date.substring(5, 7) + " " + date.substring(0, 4) + " " + date.substring(11, 16)
+        );
+        return receipt;
+    }
+
+    @DeleteMapping("/clear")
+    @ResponseBody
+    public void clearCart() {
+        cartService.clearCart();
+    }
 }
+
